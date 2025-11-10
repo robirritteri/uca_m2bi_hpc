@@ -44,7 +44,7 @@ SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/picard
 mkdir -p -m 700 "$SCRATCHDIR"
 
 # file for storage
-OUTPUT="$HOME"/03-results/"$EXPERIMENT"/align/"$filename"
+OUTPUT="$HOME"/03-results/"$EXPERIMENT"/picard/"$filename"
 mkdir -p "$OUTPUT"
 
 cd "$SCRATCHDIR"
