@@ -48,7 +48,7 @@ else
    echo "No paired or unpaired match expression in filename."
 fi
 
-SCRATCHDIR=/storage/scratch/"$USER"/"$filename/fastqc-post"
+SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/fastqc-post
 
 OUTPUT="$HOME"/03-results/"$EXPERIMENT"/qc/"$filename"
 mkdir -p "$OUTPUT"
