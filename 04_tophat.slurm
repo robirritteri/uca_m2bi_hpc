@@ -50,7 +50,7 @@ printf '%s\n' "${tab_trim_rv[@]}" >&2
 filename=( $(basename "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" _1_trim_paired.fastq.gz) )
 
 # temporaire file 
-SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/fastqc-post
+SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/align
 mkdir -p -m 700 "$SCRATCHDIR"
 
 # file for storage
