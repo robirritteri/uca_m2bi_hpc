@@ -37,7 +37,7 @@ EXPERIMENT=RNAseq
 DATA_DIR="$HOME"/03-results/"$EXPERIMENT"/trim 
 
 echo "select file for analyse..." >&2
-sscontrol_0h_B1_R1_1_trim_paired.fastq.gz
+
 tab_trim_fw=($(ls "$DATA_DIR"/*/*1_trim_paired.fastq.gz))
 echo "tab forward= " >&2
 printf '%s\n' "${tab_trim_fw[@]}" >&2
