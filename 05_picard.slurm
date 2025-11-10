@@ -31,7 +31,7 @@ EXPERIMENT=RNAseq
 DATA_DIR="$HOME"/03-results/"$EXPERIMENT"/align
 
 echo "select file for analyse..." >&2
-sscontrol_0h_B1_R1_1_trim_paired.fastq.gz
+
 tab_acpt_bam=($(ls "$DATA_DIR"/*/*accepted_hits.bam))
 echo "tab file bam = " >&2
 printf '%s\n' "${tab_acpt_bam[@]}" >&2
