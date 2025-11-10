@@ -1,0 +1,11 @@
+name: rnaseq
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - htseq
+  - tophat
+  - samtools
+  - bioconductor-cqn
+  - bioconductor-batchqc
+
