@@ -64,7 +64,7 @@ printf '%s\n' "${tab_R0[@]}" >&2
 
 echo "Mark Duplicates using Picard tools" >&2
 java -jar $PICARD MarkDuplicates \
-    INPUT="$SCRATCHDIR"/"${tab_RO[$SLURM_ARRAY_TASK_ID]}" \
+    INPUT="${tab_RO[$SLURM_ARRAY_TASK_ID]}" \
     OUTPUT="$SCRATCHDIR"/"$filename"_RO_MP.bam \
     CREATE_INDEX=false \
     VALIDATION_STRINGENCY=LENIENT \
@@ -73,7 +73,7 @@ java -jar $PICARD MarkDuplicates \
     METRICS_FILE="$SCRATCHDIR"/"$filename"_MP.metrixMP
     
 echo "select new file for analyse" >&2
-tab_R0_MP=($(ls "$DATA_DIR"/*_RO_MP.bam))
+tab_R0_MP=($(ls "$SCRATCHDIR"/*_RO_MP.bam))
 echo "tab file BO MP bam  = " >&2
 printf '%s\n' "${tab_R0_MP[@]}" >&2
 
