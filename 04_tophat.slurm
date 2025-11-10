@@ -63,7 +63,7 @@ cd "$SCRATCHDIR"
 echo "Start on $SLURMD_NODENAME: "`date` >&2
 
 echo "Running Tophat2 on sample: ${tab_trim[$SLURM_ARRAY_TASK_ID]} ... " >&2
-tophat2 -r 200 -p $SLURM_CPUS_PER_TASK -o "$OUTPUT" --b2-very-sensitive --library-type fr-firststrand --no-mixed "$INDEX/all"  "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" "${tab_trim_rv[$SLURM_ARRAY_TASK_ID]}"
+tophat2 -r 200 -p $SLURM_CPUS_PER_TASK -o "$SCRATCHDIR" --b2-very-sensitive --library-type fr-firststrand --no-mixed "$INDEX/all"  "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" "${tab_trim_rv[$SLURM_ARRAY_TASK_ID]}"
 
 mv "$SCRATCHDIR" "$OUTPUT"
 
