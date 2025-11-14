@@ -22,7 +22,7 @@ source /home/users/shared/conda_envs/miniconda3/bin/activate
 
 conda activate base
 # Environnement must exist at this step
-conda activate tophat2
+conda activate rnaseq
 
 echo "Set up directories ..." >&2
 # Set up data and result directories
@@ -63,15 +63,15 @@ cd "$SCRATCHDIR"
 echo "Start on $SLURMD_NODENAME: "`date` >&2
 
 echo "Running Tophat2 on sample: $filename ... " >&2
-tophat2 -r 200 -p $SLURM_CPUS_PER_TASK \
-    -o "$SCRATCHDIR" \
-    -G $GTF \
-    --b2-very-sensitive \
-    --library-type fr-firststrand \
-    --no-mixed \
-    "$INDEX/all" \
-    "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}"\
-    "${tab_trim_rv[$SLURM_ARRAY_TASK_ID]}"
+/usr/bin/time -v \
+hisat2 -p $SLURM_CPUS_PER_TASK \
+    --rna-strandness RF \
+    --dta \
+    -x "$INDEX/Mus_musculus" \
+    -1 "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" \
+    -2 "${tab_trim_rv[$SLURM_ARRAY_TASK_ID]}" \
+    -S "$SCRATCHDIR"/aligned.sam
+    2> $HOME/04-log/"$filename"_time_text.txt
 
 mv "$SCRATCHDIR"/* "$OUTPUT"/
 
