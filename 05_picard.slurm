@@ -2,90 +2,76 @@
 #SBATCH --time=0:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem-per-cpu=16G
-#SBATCH --cpus-per-task=20
+#SBATCH --mem=16G
+#SBATCH --cpus-per-task=1
 #SBATCH --array=0-47
-#SBATCH -o 04-log/slurmjob-%A-%a
-#SBATCH --job-name=tophat
+#SBATCH -o 04-log/slurmjob-%A-%a.out
+#SBATCH -e 04-log/slurmjob-%A-%a.err
+#SBATCH --job-name=picard
 #SBATCH --partition=normal
 
 echo 'picard'
 
-# Handling errors
 set -euo pipefail
-
 IFS=$'\n\t'
 
-# Upload whatever required packages
 module purge
-module load java/oracle-1.7.0_79 picard/2.18.25
+module load java/oracle-1.11.0_11 picard/2.18.25
+source /home/users/shared/conda_envs/miniconda3/bin/activate
 
-echo "Set up directories ..." >&2
-# Set up data and result directories
-# Run QC on trimmed data
+conda activate base
+# Environnement must exist at this step
+conda activate rnaseq
 
-PICARD=/home/users/shared/tools/picard/picard.jar
 
-EXPERIMENT=RNAseq 
+PICARD=/opt/apps/picard-2.18.25/picard.jar
+DATA_DIR="$HOME/03-results/RNAseq/raw/align"
 
-DATA_DIR="$HOME"/03-results/"$EXPERIMENT"/align
+# Selection des fichiers bam
+tab_acpt_bam=($(ls "$DATA_DIR"/*/*aligned.sorted.bam))
+echo "tab file bam = "
+printf '%s\n' "${tab_acpt_bam[@]}"
 
-echo "select file for analyse..." >&2
+# Nom du fichier courant
+filename=$(basename "${tab_acpt_bam[$SLURM_ARRAY_TASK_ID]}" _aligned.sorted.bam)
 
-tab_acpt_bam=($(ls "$DATA_DIR"/*/*accepted_hits.bam))
-echo "tab file bam = " >&2
-printf '%s\n' "${tab_acpt_bam[@]}" >&2
-
-# file name
-filename=( $(basename "${tab_acpt_bam[$SLURM_ARRAY_TASK_ID]}" accepted_hits.bam) )
-
-# temporaire file 
+# Répertoires temporaires et de sortie
 SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/picard
 mkdir -p -m 700 "$SCRATCHDIR"
 
-# file for storage
-OUTPUT="$HOME"/03-results/"$EXPERIMENT"/picard/"$filename"
+OUTPUT="$HOME/03-results/$EXPERIMENT/picard/$filename"
 mkdir -p "$OUTPUT"
 
 cd "$SCRATCHDIR"
 
+# ---- SORT SAM ----
 echo "Sort reads using Picard tools" >&2
 java -jar $PICARD SortSam \
     INPUT="${tab_acpt_bam[$SLURM_ARRAY_TASK_ID]}" \
-    OUTPUT="$SCRATCHDIR/${filename}_RO.bam" \
+    OUTPUT="$SCRATCHDIR"/"${filename}"_RO.bam \
     SORT_ORDER=coordinate \
-    VALIDATION_STRINGENCY=LENIENT
+    VALIDATION_STRINGENCY=LENIENT 
+
+samtools index "${filename}_RO.bam"
 
 
-echo "select new file for analyse" >&2
-tab_R0=($(ls "$SCRATCHDIR"/*_RO.bam))
-echo "tab file RO bam = " >&2
-printf '%s\n' "${tab_R0[@]}" >&2
-
+# ---- MARK DUPLICATES ----
 echo "Mark Duplicates using Picard tools" >&2
+RO_FILE="$SCRATCHDIR/${filename}_RO.bam"
 java -jar $PICARD MarkDuplicates \
-    INPUT="${tab_RO[$SLURM_ARRAY_TASK_ID]}" \
-    OUTPUT="$SCRATCHDIR"/"$filename"_RO_MP.bam \
+    INPUT="$RO_FILE" \
+    OUTPUT="$SCRATCHDIR"/"${filename}"_RO_MP.bam \
     CREATE_INDEX=false \
     VALIDATION_STRINGENCY=LENIENT \
     ASSUME_SORTED=false \
     REMOVE_DUPLICATES=false \
-    METRICS_FILE="$SCRATCHDIR"/"$filename"_MP.metrixMP
-    
-echo "select new file for analyse" >&2
-tab_R0_MP=($(ls "$SCRATCHDIR"/*_RO_MP.bam))
-echo "tab file BO MP bam  = " >&2
-printf '%s\n' "${tab_R0_MP[@]}" >&2
+    METRICS_FILE="$SCRATCHDIR"/"${filename}"_MP.metrixMP 
 
-echo "Quality check: Insert Size Estimation using Picard tools" >&2
-java -Xmx2g -jar $PICARD CollectInsertSizeMetrics \
-    HISTOGRAM_FILE="$SCRATCHDIR"/"$filename"_insert.size.hist.pdf \
-    INPUT="${tab_R0_MP[$SLURM_ARRAY_TASK_ID]}" \
-    OUTPUT="$SCRATCHDIR/${filename}_insert.size"
-                
+samtools index "${filename}_RO_MP.bam"
+
+# ---- MOVE RESULTS ----
+
 mv "$SCRATCHDIR"/* "$OUTPUT"/
 
-# Cleaning in case something went wrong
-rm -rf  "$SCRATCHDIR"
+echo "Stop job : $(date)" >&2
 
-echo "Stop job : "`date` >&2

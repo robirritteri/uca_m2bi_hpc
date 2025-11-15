@@ -25,10 +25,7 @@ module load java/oracle-1.7.0_79 fastqc/0.11.7
 echo "Set up directories ..." >&2
 # Set up data and result directories
 # Run QC on trimmed data
-
-EXPERIMENT=RNAseq 
-
-DATA_DIR="$HOME"/03-results/"$EXPERIMENT"/trim 
+DATA_DIR="$HOME"/03-results/RNAseq/trim 
 
 echo "Set up an array with all fastq.gz sequence files..." >&2
 tab_trim=($(ls "$DATA_DIR"/*/*trim*.fastq.gz))
@@ -50,7 +47,7 @@ fi
 
 SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/fastqc-post
 
-OUTPUT="$HOME"/03-results/"$EXPERIMENT"/qc/"$filename"
+OUTPUT="$HOME"/03-results/RNAseq/raw/qc/"$filename"
 mkdir -p "$OUTPUT"
 mkdir -p -m 700 "$SCRATCHDIR"
 

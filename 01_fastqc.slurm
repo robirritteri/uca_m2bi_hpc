@@ -13,8 +13,7 @@
 echo 'Quality control'
 
 # Handling errors
-set -o errexit # ensure script will stop in case of ignored error
-set -o nounset # force variable initialisation
+set -euo pipefail
 
 IFS=$'\n\t'
 
@@ -25,8 +24,7 @@ echo "Set up directories ..." >&2
 # Set up data and result directories
 # Run QC on raw data and an trimmed data
 
-EXPERIMENT=RNAseq
-PATH_DIR=/home/users/shared/data/stategra/RNAseq
+PATH_DIR=/home/users/shared/data/stategra/RNAseq/raw
 
 echo "Set up an array with all fastq.gz subset sequence files..." >&2
 tab_fastq=($(ls "$PATH_DIR"/*.fastq.gz))
@@ -38,8 +36,9 @@ filename=$(basename "${tab_fastq[$SLURM_ARRAY_TASK_ID]}" .fastq.gz )
 
 SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/fastqc-init
 
-OUTPUT="$HOME"/03-results/"$EXPERIMENT"/qc/"$filename"
+OUTPUT="$HOME"/03-results/RNAseq/raw/qc/"$filename"
 mkdir -p "$OUTPUT"
+
 # Look for empty result directory
 if [ -d "$OUTPUT/fastqc-init" ]
 then
@@ -60,7 +59,7 @@ echo "Start on $SLURMD_NODENAME: "`date` >&2
 
 echo "Run the initial quality control... " >&2
 fastqc "${tab_fastq[$SLURM_ARRAY_TASK_ID]}" --dir "$SCRATCHDIR" -o "$SCRATCHDIR"
-mv "$SCRATCHDIR" "$OUTPUT"
+mv "$SCRATCHDIR"/* "$OUTPUT"/
 
 # Cleaning in case something went wrong
 rm -rf  "$SCRATCHDIR"

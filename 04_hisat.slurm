@@ -1,11 +1,12 @@
 #!/bin/bash
-#SBATCH --time=6:00:00
+#SBATCH --time=1:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=32G
-#SBATCH --cpus-per-task=14
+#SBATCH --mem=5G
+#SBATCH --cpus-per-task=4
 #SBATCH --array=0-23
-#SBATCH -o 04-log/slurmjob-%A-%a
+#SBATCH -o 04-log/slurmjob-%A-%a.out
+#SBATCH -e 04-log/slurmjob-%A-%a.err
 #SBATCH --job-name=hisat2
 #SBATCH --partition=normal
 
@@ -28,13 +29,11 @@ echo "Set up directories ..." >&2
 # Set up data and result directories
 # Run QC on trimmed data
 
-INDEX=$HOME/tophat_transcriptome_index/all
+INDEX=/home/users/shared/databanks/Mus_musculus_GRCm39/hisat2/all
 
 GTF=/home/users/shared/databanks/Mus_musculus_GRCm39/flat/genomic.gtf
 
-EXPERIMENT=RNAseq 
-
-DATA_DIR="$HOME"/03-results/"$EXPERIMENT"/trim 
+DATA_DIR="$HOME"/03-results/RNAseq/raw/trim 
 
 echo "select file for analyse..." >&2
 
@@ -54,7 +53,7 @@ SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/align
 mkdir -p -m 700 "$SCRATCHDIR"
 
 # file for storage
-OUTPUT="$HOME"/03-results/"$EXPERIMENT"/align/"$filename"
+OUTPUT="$HOME"/03-results/RNAseq/align/"$filename"
 mkdir -p "$OUTPUT"
 
 cd "$SCRATCHDIR"
@@ -62,16 +61,21 @@ cd "$SCRATCHDIR"
 # Run the program
 echo "Start on $SLURMD_NODENAME: "`date` >&2
 
-echo "Running Tophat2 on sample: $filename ... " >&2
-/usr/bin/time -v \
-hisat2 -p $SLURM_CPUS_PER_TASK \
+echo "Running HISAT2 on sample: $filename ... " >&2
+/usr/bin/time -v -o $HOME/04-log/"$filename"_time_text.txt\
+    hisat2 -p $SLURM_CPUS_PER_TASK \
     --rna-strandness RF \
     --dta \
     -x "$INDEX/Mus_musculus" \
     -1 "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" \
     -2 "${tab_trim_rv[$SLURM_ARRAY_TASK_ID]}" \
-    -S "$SCRATCHDIR"/aligned.sam
-    2> $HOME/04-log/"$filename"_time_text.txt
+    -S "$SCRATCHDIR"/"$filename"_aligned.sam  
+
+# Conversion SAM → BAM + tri
+samtools view -@ $SLURM_CPUS_PER_TASK -bS "$SCRATCHDIR"/"$filename"_aligned.sam \
+    | samtools sort -@ $SLURM_CPUS_PER_TASK -o "$SCRATCHDIR"/"$filename"_aligned.sorted.bam
+
+samtools index "$SCRATCHDIR"/"$filename"_aligned.sorted.bam
 
 mv "$SCRATCHDIR"/* "$OUTPUT"/
 
