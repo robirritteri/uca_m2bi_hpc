@@ -3,8 +3,14 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - bioconductor-deseq2
-  - samtools
   - hisat2
   - subread
-
+  - samtools
+  - r-base
+  - r-dplyr
+  - r-ggplot2
+  - r-patchwork
+  - r-grid
+  - bioconductor-deseq2
+  - bioconductor-pheatmap
+  - bioconductor-biomart
