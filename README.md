@@ -76,7 +76,7 @@ The R analysis pipeline consists of three interconnected scripts:
 
 ### all_counts.R
 - **Purpose**: Merges individual featureCounts output files (one per sample) into a single count matrix.
-- **Inputs**: Individual `*.featureCounts.txt` files from `results/` (produced by `06_samtools.slurm`).
+- **Inputs**: Individual `*.featureCounts.txt` files from `results/` (produced by `06_counts.slurm`).
 - **Output**: `all_featureCounts_counts.txt` (tab-separated, Geneid × samples).
 - **Key steps**: 
   - Locates all featureCounts files
