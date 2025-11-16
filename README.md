@@ -10,7 +10,7 @@ Overview
 - `03_fastqc.slurm` - FastQC after trimming.
 - `04_hisat.slurm` - HISAT2 alignment (paired-end).
 - `05_picard.slurm` - Picard processing: SortSam, MarkDuplicates.
-- `06_counts.slurm` - SAMtools filtering + `featureCounts` quantification.
+- `06_counts.slurm` - SAMtools filtering + `featureCounts` (from subread) quantification.
 - `07_R.slurm` - launches R scripts: `all_counts.R` then `Analyse.R`.
 - `all_counts.R` - R scripts for merge different file `featureCounts`
 - `Analyse.R` - R analysis scripts (DESeq2, plots, heatmaps).
@@ -23,11 +23,38 @@ Design principles
 - Each step writes temporary files to a scratch directory (e.g. `/storage/scratch/$USER/...`) and moves final outputs to `results/` 
 - R scripts save figures (PDF) and result tables in `results/analysis`.
 
+Environment setup
+-----------------
+The pipeline requires a conda environment with specific bioinformatics tools and R packages.
+
+**Create the conda environment from the provided YAML file:**
+
+```bash
+# From the pipeline directory
+conda env create -f conda.yaml
+
+# Activate the environment
+conda activate rnaseq
+```
+
+The `conda.yaml` file specifies:
+- **Alignment tools**: HISAT2
+- **Read processing**: samtools
+- **Quantification**: subread (featureCounts)
+- **Bioconductor packages**: DESeq2, pheatmap, biomaRt
+- **R packages**: dplyr, ggplot2, patchwork, grid
+- **Channels**: bioconda, conda-forge
+- **Name**: `rnaseq`
+
+All required dependencies are automatically installed when you create the environment with `conda env create -f conda.yaml`.
+
 Quick start
 -----------
-1. From the pipeline directory, inspect and optionally adjust configurations at the top of the `.slurm` scripts (paths, modules, array sizes).
+1. Set up the conda environment (see above).
 
-2. Submit the pipeline launcher (recommended):
+2. From the pipeline directory, inspect and optionally adjust configurations at the top of the `.slurm` scripts (paths, modules, array sizes).
+
+3. Submit the pipeline launcher (recommended):
 
 ```bash
 cd /uca_m2bi_hpc/script/
@@ -76,7 +103,7 @@ The R analysis pipeline consists of three interconnected scripts:
 
 ### all_counts.R
 - **Purpose**: Merges individual featureCounts output files (one per sample) into a single count matrix.
-- **Inputs**: Individual `*.featureCounts.txt` files from `results/` (produced by `06_counts.slurm`).
+- **Inputs**: Individual `*.featureCounts.txt` files from `results/` (produced by `06_samtools.slurm`).
 - **Output**: `all_featureCounts_counts.txt` (tab-separated, Geneid × samples).
 - **Key steps**: 
   - Locates all featureCounts files
