@@ -25,7 +25,7 @@ module load gcc/8.1.0 java/oracle-1.7.0_79 trimmomatic/0.38
 ###########################################
 # Input and output directories
 ###########################################
-DATA_DIR="/home/users/shared/data/stategra/RNAseq/raw/qc-init"
+DATA_DIR="/home/users/shared/data/stategra/RNAseq/raw/"
 PRIMER_DIR="/home/users/shared/data/stategra"
 OUTPUT="$HOME/results/RNAseq/raw/trim"
 
