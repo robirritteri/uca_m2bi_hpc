@@ -1,77 +1,94 @@
 #!/bin/bash
-#SBATCH --time=0:30:00
+#SBATCH --job-name=picard
+#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=16G
 #SBATCH --cpus-per-task=1
+#SBATCH --mem=8G
 #SBATCH --array=0-47
-#SBATCH -o 04-log/slurmjob-%A-%a.out
-#SBATCH -e 04-log/slurmjob-%A-%a.err
-#SBATCH --job-name=picard
 #SBATCH --partition=normal
 
-echo 'picard'
+###############################################
+# Picard – SAM/BAM processing and QC metrics
+###############################################
 
 set -euo pipefail
 IFS=$'\n\t'
 
+echo "===== Starting Picard job ====="
+
+# Load required modules
 module purge
 module load java/oracle-1.11.0_11 picard/2.18.25
 source /home/users/shared/conda_envs/miniconda3/bin/activate
-
-conda activate base
-# Environnement must exist at this step
 conda activate rnaseq
 
+# Picard JAR file location
+PICARD="/opt/apps/picard-2.18.25/picard.jar"
 
-PICARD=/opt/apps/picard-2.18.25/picard.jar
-DATA_DIR="$HOME/03-results/RNAseq/raw/align"
+# Input directory containing aligned BAM files
+ALIGN_DIR="$HOME/results/RNAseq/raw/align"
 
-# Selection des fichiers bam
-tab_acpt_bam=($(ls "$DATA_DIR"/*/*aligned.sorted.bam))
-echo "tab file bam = "
-printf '%s\n' "${tab_acpt_bam[@]}"
+echo "[INFO] Listing aligned BAM files in: $ALIGN_DIR" >&2
+bam_files=($(ls "$ALIGN_DIR"/*/*aligned.sorted.bam))
 
-# Nom du fichier courant
-filename=$(basename "${tab_acpt_bam[$SLURM_ARRAY_TASK_ID]}" _aligned.sorted.bam)
+echo "[INFO] BAM files detected:" >&2
+printf '  %s\n' "${bam_files[@]}" >&2
 
-# Répertoires temporaires et de sortie
-SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/picard
+# Extract sample filename
+filename=$(basename "${bam_files[$SLURM_ARRAY_TASK_ID]}" _aligned.sorted.bam)
+
+# Scratch directory for temporary computation
+SCRATCHDIR="/storage/scratch/$USER/${filename}/picard"
 mkdir -p -m 700 "$SCRATCHDIR"
 
-OUTPUT="$HOME/03-results/$EXPERIMENT/picard/$filename"
+# Output directory for final results
+OUTPUT="$HOME/results/RNAseq/picard/$filename"
 mkdir -p "$OUTPUT"
 
+# Change to scratch directory to ensure all operations happen there
 cd "$SCRATCHDIR"
 
-# ---- SORT SAM ----
-echo "Sort reads using Picard tools" >&2
-java -jar $PICARD SortSam \
-    INPUT="${tab_acpt_bam[$SLURM_ARRAY_TASK_ID]}" \
-    OUTPUT="$SCRATCHDIR"/"${filename}"_RO.bam \
+###########################################
+# Step 1: Sort reads by coordinate
+###########################################
+echo "[INFO] Sorting reads using Picard SortSam..." >&2
+java -jar "$PICARD" SortSam \
+    INPUT="${bam_files[$SLURM_ARRAY_TASK_ID]}" \
+    OUTPUT="${filename}_RO.bam" \
     SORT_ORDER=coordinate \
-    VALIDATION_STRINGENCY=LENIENT 
+    VALIDATION_STRINGENCY=LENIENT
 
+# Index the sorted BAM file
 samtools index "${filename}_RO.bam"
 
-
-# ---- MARK DUPLICATES ----
-echo "Mark Duplicates using Picard tools" >&2
-RO_FILE="$SCRATCHDIR/${filename}_RO.bam"
-java -jar $PICARD MarkDuplicates \
-    INPUT="$RO_FILE" \
-    OUTPUT="$SCRATCHDIR"/"${filename}"_RO_MP.bam \
+###########################################
+# Step 2: Mark duplicate reads
+###########################################
+echo "[INFO] Marking duplicates using Picard MarkDuplicates..." >&2
+java -jar "$PICARD" MarkDuplicates \
+    INPUT="${filename}_RO.bam" \
+    OUTPUT="${filename}_RO_MP.bam" \
     CREATE_INDEX=false \
     VALIDATION_STRINGENCY=LENIENT \
     ASSUME_SORTED=false \
     REMOVE_DUPLICATES=false \
-    METRICS_FILE="$SCRATCHDIR"/"${filename}"_MP.metrixMP 
+    METRICS_FILE="${filename}_MP.metrics"
 
+# Index the deduplicated BAM file
 samtools index "${filename}_RO_MP.bam"
 
-# ---- MOVE RESULTS ----
-
+###########################################
+# Move results to final output
+###########################################
 mv "$SCRATCHDIR"/* "$OUTPUT"/
 
-echo "Stop job : $(date)" >&2
+# Clean scratch directory
+rm -rf "$SCRATCHDIR"
+
+conda deactivate
+
+echo "===== Picard job completed successfully ====="
+echo "Stopped at: $(date)" >&2
 

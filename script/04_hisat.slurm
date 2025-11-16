@@ -1,88 +1,88 @@
 #!/bin/bash
-#SBATCH --time=1:00:00
+#SBATCH --job-name=hisat2
+#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --time=01:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=5G
 #SBATCH --cpus-per-task=4
+#SBATCH --mem=5G
 #SBATCH --array=0-23
-#SBATCH -o 04-log/slurmjob-%A-%a.out
-#SBATCH -e 04-log/slurmjob-%A-%a.err
-#SBATCH --job-name=hisat2
 #SBATCH --partition=normal
 
-echo 'alignment'
+###############################################
+# HISAT2 – RNA-seq read alignment
+###############################################
 
-# Handling errors
 set -euo pipefail
-
 IFS=$'\n\t'
 
-# Upload whatever required packages
+echo "===== Starting HISAT2 alignment job ====="
+
+# Load conda environment
 module purge
 source /home/users/shared/conda_envs/miniconda3/bin/activate
-
-conda activate base
-# Environnement must exist at this step
 conda activate rnaseq
 
-echo "Set up directories ..." >&2
-# Set up data and result directories
-# Run QC on trimmed data
+# Reference genome index and annotation
+INDEX="/home/users/shared/databanks/Mus_musculus_GRCm39/hisat2/all"
+GTF="/home/users/shared/databanks/Mus_musculus_GRCm39/flat/genomic.gtf"
 
-INDEX=/home/users/shared/databanks/Mus_musculus_GRCm39/hisat2/all
+# Input directory containing trimmed FASTQ files
+TRIM_DIR="$HOME/results/RNAseq/raw/trim"
 
-GTF=/home/users/shared/databanks/Mus_musculus_GRCm39/flat/genomic.gtf
+echo "[INFO] Listing trimmed FASTQ files in: $TRIM_DIR" >&2
+# Forward reads
+forward_reads=($(ls "$TRIM_DIR"/*/*1_trim_paired.fastq.gz))
+echo "[INFO] Forward reads detected:" >&2
+printf '  %s\n' "${forward_reads[@]}" >&2
 
-DATA_DIR="$HOME"/03-results/RNAseq/raw/trim 
+# Reverse reads
+reverse_reads=($(ls "$TRIM_DIR"/*/*2_trim_paired.fastq.gz))
+echo "[INFO] Reverse reads detected:" >&2
+printf '  %s\n' "${reverse_reads[@]}" >&2
 
-echo "select file for analyse..." >&2
+# Extract sample filename
+filename=$(basename "${forward_reads[$SLURM_ARRAY_TASK_ID]}" _1_trim_paired.fastq.gz)
 
-tab_trim_fw=($(ls "$DATA_DIR"/*/*1_trim_paired.fastq.gz))
-echo "tab forward= " >&2
-printf '%s\n' "${tab_trim_fw[@]}" >&2
-
-tab_trim_rv=($(ls "$DATA_DIR"/*/*2_trim_paired.fastq.gz))
-echo "tab revers= " >&2
-printf '%s\n' "${tab_trim_rv[@]}" >&2
-
-# file name
-filename=( $(basename "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" _1_trim_paired.fastq.gz) )
-
-# temporaire file 
-SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/align
+# Scratch directory for temporary computation
+SCRATCHDIR="/storage/scratch/$USER/${filename}/align"
 mkdir -p -m 700 "$SCRATCHDIR"
 
-# file for storage
-OUTPUT="$HOME"/03-results/RNAseq/align/"$filename"
+# Output directory for final alignment results
+OUTPUT="$HOME/results/RNAseq/align/$filename"
 mkdir -p "$OUTPUT"
 
+# Change to scratch directory to ensure all operations happen there
 cd "$SCRATCHDIR"
 
-# Run the program
-echo "Start on $SLURMD_NODENAME: "`date` >&2
-
-echo "Running HISAT2 on sample: $filename ... " >&2
-/usr/bin/time -v -o $HOME/04-log/"$filename"_time_text.txt\
-    hisat2 -p $SLURM_CPUS_PER_TASK \
+echo "[INFO] Running HISAT2 alignment on sample: $filename" >&2
+# Align reads with HISAT2
+/usr/bin/time -v -o "$HOME/04-log/${filename}_time_text.txt" \
+    hisat2 -p "$SLURM_CPUS_PER_TASK" \
     --rna-strandness RF \
     --dta \
     -x "$INDEX/Mus_musculus" \
-    -1 "${tab_trim_fw[$SLURM_ARRAY_TASK_ID]}" \
-    -2 "${tab_trim_rv[$SLURM_ARRAY_TASK_ID]}" \
-    -S "$SCRATCHDIR"/"$filename"_aligned.sam  
+    -1 "${forward_reads[$SLURM_ARRAY_TASK_ID]}" \
+    -2 "${reverse_reads[$SLURM_ARRAY_TASK_ID]}" \
+    -S "${filename}_aligned.sam"
 
-# Conversion SAM → BAM + tri
-samtools view -@ $SLURM_CPUS_PER_TASK -bS "$SCRATCHDIR"/"$filename"_aligned.sam \
-    | samtools sort -@ $SLURM_CPUS_PER_TASK -o "$SCRATCHDIR"/"$filename"_aligned.sorted.bam
+# Convert SAM to BAM and sort
+echo "[INFO] Converting SAM to BAM and sorting..." >&2
+samtools view -@ "$SLURM_CPUS_PER_TASK" -bS "${filename}_aligned.sam" \
+    | samtools sort -@ "$SLURM_CPUS_PER_TASK" -o "${filename}_aligned.sorted.bam"
 
-samtools index "$SCRATCHDIR"/"$filename"_aligned.sorted.bam
+# Index BAM file
+echo "[INFO] Indexing BAM file..." >&2
+samtools index "${filename}_aligned.sorted.bam"
 
+# Move results to final output
 mv "$SCRATCHDIR"/* "$OUTPUT"/
 
-# Cleaning in case something went wrong
-rm -rf  "$SCRATCHDIR"
+# Clean scratch directory
+rm -rf "$SCRATCHDIR"
 
 conda deactivate
 
-echo "Stop job : "`date` >&2
+echo "===== HISAT2 alignment job completed successfully ====="
+echo "Stopped at: $(date)" >&2
 

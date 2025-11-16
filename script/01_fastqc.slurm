@@ -1,68 +1,70 @@
 #!/bin/bash
-#SBATCH --time=0:30:00
+#SBATCH --job-name=qc_init
+#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem-per-cpu=2G
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=2G
 #SBATCH --array=0-47
-#SBATCH -o 04-log/slurmjob-%A-%a
-#SBATCH --job-name=qc_init
 #SBATCH --partition=normal
 
+###############################################
+# FastQC – Initial quality control on raw reads
+###############################################
 
-echo 'Quality control'
-
-# Handling errors
 set -euo pipefail
-
 IFS=$'\n\t'
 
-# Upload whatever required packages
-module load java/oracle-1.7.0_79 fastqc/0.11.7 
+echo "===== Starting FastQC job (initial QC) ====="
 
-echo "Set up directories ..." >&2
-# Set up data and result directories
-# Run QC on raw data and an trimmed data
+# Load required modules
+module load java/oracle-1.7.0_79 fastqc/0.11.7
 
-PATH_DIR=/home/users/shared/data/stategra/RNAseq/raw
+# Input directory
+RAW_DIR="/home/users/shared/data/stategra/RNAseq/raw"
 
-echo "Set up an array with all fastq.gz subset sequence files..." >&2
-tab_fastq=($(ls "$PATH_DIR"/*.fastq.gz))
-echo "tab = " >&2
-printf '%s\n' "${tab_fastq[@]}" >&2
+echo "[INFO] Listing FASTQ files in: $RAW_DIR" >&2
+fastq_files=($(ls "$RAW_DIR"/*.fastq.gz))
 
-# Set up the temporary directory
-filename=$(basename "${tab_fastq[$SLURM_ARRAY_TASK_ID]}" .fastq.gz )
+echo "[INFO] Files detected:" >&2
+printf '  %s\n' "${fastq_files[@]}" >&2
 
-SCRATCHDIR=/storage/scratch/"$USER"/"$filename"/fastqc-init
+# Select the file corresponding to the array ID
+filename=$(basename "${fastq_files[$SLURM_ARRAY_TASK_ID]}" .fastq.gz)
 
-OUTPUT="$HOME"/03-results/RNAseq/raw/qc/"$filename"
+# Scratch directory for temporary computation
+SCRATCHDIR="/storage/scratch/$USER/${filename}/fastqc-init"
+mkdir -p -m 700 "$SCRATCHDIR"
+
+# Output directory for final FastQC results
+OUTPUT="$HOME/03-results/RNAseq/raw/qc-init/$filename"
 mkdir -p "$OUTPUT"
 
-# Look for empty result directory
-if [ -d "$OUTPUT/fastqc-init" ]
-then
-    if [ "$(ls -A $OUTPUT/fastqc-init)" ]; then
-    echo "$OUTPUT/fastqc-init is not empty and must be cleaned."
-    rm -rf "$OUTPUT"/fastqc-init
+# Change to scratch directory to ensure all operations happen there
+cd "$SCRATCHDIR"
+
+# Ensure output is clean
+if [ -d "$OUTPUT/fastqc-init" ]; then
+    if [ "$(ls -A "$OUTPUT"/fastqc-init)" ]; then
+        echo "[WARN] $OUTPUT/fastqc-init is not empty. Cleaning it." >&2
+        rm -rf "$OUTPUT/fastqc-init"
     else
-    echo "Directory $OUTPUT/fastqc-init is empty."
+        echo "[INFO] $OUTPUT/fastqc-init exists but is empty." >&2
     fi
 fi
 
-mkdir -p -m 700 "$SCRATCHDIR"
+echo "[INFO] Running FastQC on: ${fastq_files[$SLURM_ARRAY_TASK_ID]}" >&2
+fastqc \
+    "${fastq_files[$SLURM_ARRAY_TASK_ID]}" \
+    --dir "$SCRATCHDIR" \
+    -o "$SCRATCHDIR"
 
-cd "$SCRATCHDIR"
-
-# Run the program
-echo "Start on $SLURMD_NODENAME: "`date` >&2
-
-echo "Run the initial quality control... " >&2
-fastqc "${tab_fastq[$SLURM_ARRAY_TASK_ID]}" --dir "$SCRATCHDIR" -o "$SCRATCHDIR"
+# Move results to final output
 mv "$SCRATCHDIR"/* "$OUTPUT"/
 
-# Cleaning in case something went wrong
-rm -rf  "$SCRATCHDIR"
+# Clean scratch directory
+rm -rf "$SCRATCHDIR"
 
-echo "Stop job : "`date` >&2
-
+echo "===== FastQC job completed successfully ====="
+echo "Stopped at: $(date)" >&2
