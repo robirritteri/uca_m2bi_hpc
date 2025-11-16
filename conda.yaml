@@ -3,9 +3,8 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - htseq
-  - tophat
+  - bioconductor-deseq2
   - samtools
-  - bioconductor-cqn
-  - bioconductor-batchqc
+  - hisat2
+  - subread
 
