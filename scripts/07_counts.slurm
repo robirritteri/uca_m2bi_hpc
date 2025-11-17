@@ -16,6 +16,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+module load conda
+conda activate rnaseq
+
 echo "===== Starting read filtering and counting job ====="
 
 # Reference genome annotation
