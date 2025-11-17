@@ -22,7 +22,7 @@ conda activate rnaseq
 # ==========================
 # Path
 # ==========================
-RAW_DIR="/home/users/shared/data/stategra/RNAseq"
+RAW_DIR="/home/users/shared/data/stategra/RNAseq/raw"
 TRIM_DIR="/home/users/student14/uca_m2bi_hpc/results/RNAseq/trimmed/paired"
 QC_TRIM_DIR="$HOME/results/RNAseq/trimmed/qc-post"   # MultiQC post-trim (optional here)
 
