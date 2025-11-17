@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=hisat2
-#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --output=log/04_hisat-%A-%a.out
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -57,8 +57,7 @@ cd "$SCRATCHDIR"
 
 echo "[INFO] Running HISAT2 alignment on sample: $filename" >&2
 # Align reads with HISAT2
-/usr/bin/time -v -o "$HOME/04-log/${filename}_time_text.txt" \
-    hisat2 -p "$SLURM_CPUS_PER_TASK" \
+hisat2 -p "$SLURM_CPUS_PER_TASK" \
     --rna-strandness RF \
     --dta \
     -x "$INDEX/Mus_musculus" \

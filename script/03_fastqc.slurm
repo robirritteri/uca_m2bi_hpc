@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qc_post
-#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --output=log/03_fastqc-%A-%a.out
 #SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

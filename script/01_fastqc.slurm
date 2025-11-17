@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=qc_init
-#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --output=log/01_fastqc-%A-%a.out
 #SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -38,7 +38,7 @@ SCRATCHDIR="/storage/scratch/$USER/${filename}/fastqc-init"
 mkdir -p -m 700 "$SCRATCHDIR"
 
 # Output directory for final FastQC results
-OUTPUT="$HOME/03-results/RNAseq/raw/qc-init/$filename"
+OUTPUT="$HOME/results/RNAseq/raw/qc-init/$filename"
 mkdir -p "$OUTPUT"
 
 # Change to scratch directory to ensure all operations happen there

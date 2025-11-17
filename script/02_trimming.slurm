@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=trim
-#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --output=log/02_trimming-%A-%a.out
 #SBATCH --time=00:40:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
