@@ -37,7 +37,7 @@ filename=$(basename "${fastq_files[$SLURM_ARRAY_TASK_ID]}" .fastq.gz)
 
 # Scratch + final output (modified)
 SCRATCHDIR="/storage/scratch/$USER/${filename}/fastqc-init"
-OUTPUT_BASE="/home/users/student14/uca_m2bi_hpc/results/RNAseq/raw/qc-init"
+OUTPUT_BASE="$HOME/results/RNAseq/raw/qc-init"
 OUTPUT="$OUTPUT_BASE/$filename"
 
 mkdir -p -m 700 "$SCRATCHDIR" "$OUTPUT_BASE" "$OUTPUT"
