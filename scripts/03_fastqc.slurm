@@ -19,8 +19,8 @@ IFS=$'\n\t'
 # ==========================
 # Path
 # ==========================
-TRIM_DIR="/home/users/student14/uca_m2bi_hpc/results/RNAseq/trimmed/paired"
-QC_TRIM_DIR="/home/users/student14/uca_m2bi_hpc/results/RNAseq/trimmed/qc-post"
+TRIM_DIR="$HOME/results/RNAseq/trimmed/paired"
+QC_TRIM_DIR="$HOME/results/RNAseq/trimmed/qc-post"
 
 mkdir -p "$QC_TRIM_DIR"
 
