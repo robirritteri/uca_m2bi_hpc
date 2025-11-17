@@ -2,9 +2,6 @@
 # DESeq2 Analysis – RNA-seq differential expression
 ###############################################
 
-# Load required libraries
-library(dplyr)
-
 # list libraries
 cran_pkgs <- c("dplyr")
 
@@ -17,6 +14,8 @@ install_if_missing <- function(pkgs) {
 
 install_if_missing(cran_pkgs)
 
+# Load required libraries
+library(dplyr)
 
 PATH <- commandArgs(trailingOnly = TRUE)
 
