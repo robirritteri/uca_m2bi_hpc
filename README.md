@@ -15,7 +15,13 @@ It runs the full workflow:
 
 **All scripts are SLURM jobs (*.slurm) and use a shared conda environment (rnaseq).**
 
-Output folders are created automatically inside:
+Output folders are created automatically inside : $HOME
+
+You can download the full pipeline by cloning this repository:
+
+```code
+git clone https://github.com/robirritteri/uca_m2bi_hpc.git
+```
 
 ## 2. Pipeline structure
 ```text
