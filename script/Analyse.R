@@ -1,15 +1,3 @@
-# List libraries
-cran_pkgs <- c("dplyr", "ggplot2", "patchwork", "pheatmap")
-
-# Installe packages CRAN
-install_if_missing <- function(pkgs) {
-  to_install <- pkgs[!pkgs %in% installed.packages()[, "Package"]]
-  if (length(to_install) > 0) {
-    install.packages(to_install)
-  } 
-
-install_if_missing(cran_pkgs)
-
 # Load library
 library(DESeq2)
 library(patchwork)
@@ -104,11 +92,12 @@ paper <- read.csv("STATegra.RNAseq.allSamples.counts.csv", row.names = 1, check.
 sel <- grep("_(0H|24H)$", colnames(paper), value = TRUE)
 paper <- paper[, sel]
 
-mart <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
-annot <- getBM(attributes = c("ensembl_gene_id", "mgi_symbol"), filters = "ensembl_gene_id",
-               values = rownames(paper), mart = mart)
+gene_symbols <- mapIds(org.Mm.eg.db,
+                       keys = rownames(paper),
+                       keytype = "ENSEMBL",
+                       column = "SYMBOL",
+                       multiVals = "first")
 
-gene_symbols <- annot$mgi_symbol[match(rownames(paper), annot$ensembl_gene_id)]
 paper <- paper[!is.na(gene_symbols), ]
 gene_symbols <- gene_symbols[!is.na(gene_symbols)]
 rownames(paper) <- make.unique(gene_symbols)
