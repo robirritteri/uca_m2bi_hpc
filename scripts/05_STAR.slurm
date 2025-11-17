@@ -21,9 +21,9 @@ echo "===== Starting STAR alignment job ====="
 # ==========================
 # Path
 # ==========================
-TRIM_DIR="/home/users/student14/uca_m2bi_hpc/results/RNAseq/trimmed/paired"
-OUT_DIR="/home/users/student14/uca_m2bi_hpc/results/RNAseq/alignment/paired"
-GENOME_DIR="/home/users/student14/uca_m2bi_hpc/index_star"
+TRIM_DIR="$HOME/results/RNAseq/trimmed/paired"
+OUT_DIR="$HOME/results/RNAseq/alignment/paired"
+GENOME_DIR="$HOME/index_star"
 
 mkdir -p "$OUT_DIR"
 
