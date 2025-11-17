@@ -4,7 +4,6 @@ channels:
   - R
   - conda-forge
 dependencies:
-  - r-base=4.3
   - bioconductor-deseq2
   - subread 
   - cutadapt
@@ -13,3 +12,10 @@ dependencies:
   - star
   - samtools
   - picard
+  - r-base
+  - r-dplyr
+  - r-ggplot2
+  - r-patchwork
+  - bioconductor-deseq2
+  - r-pheatmap
+  - bioconductor-biomart
