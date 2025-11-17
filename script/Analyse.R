@@ -1,4 +1,16 @@
-library(dplyr)
+# List libraries
+cran_pkgs <- c("dplyr", "ggplot2", "patchwork", "pheatmap")
+
+# Installe packages CRAN
+install_if_missing <- function(pkgs) {
+  to_install <- pkgs[!pkgs %in% installed.packages()[, "Package"]]
+  if (length(to_install) > 0) {
+    install.packages(to_install)
+  } 
+
+install_if_missing(cran_pkgs)
+
+# Load library
 library(DESeq2)
 library(patchwork)
 library(grid)
