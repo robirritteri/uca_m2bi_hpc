@@ -20,10 +20,10 @@ echo "===== Starting Picard job (batch post-processing) ====="
 # ==========================
 # Path
 # ==========================
-BAMs=( "/home/users/student14/uca_m2bi_hpc/results/RNAseq/alignment/paired"/*/*.bam )
+BAMs=( "$HOME/results/RNAseq/alignment/paired"/*/*.bam )
 pairedBAMs=$(echo "${BAMs[@]}")
 
-folder="/home/users/student14/uca_m2bi_hpc/results/RNAseq/picard/bamTraite"
+folder="$HOME/results/RNAseq/picard/bamTraite"
 sub_folders=("paired")
 
 mkdir -p "$folder/paired"
