@@ -1,0 +1,15 @@
+name: rnaseq
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - hisat2
+  - subread
+  - samtools
+  - r-base
+  - r-dplyr
+  - r-ggplot2
+  - r-patchwork
+  - bioconductor-deseq2
+  - r-pheatmap
+  - bioconductor-biomart
