@@ -15,6 +15,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+module load conda
+conda activate rnaseq
+
 echo "===== Starting STAR index generation ====="
 date
 
