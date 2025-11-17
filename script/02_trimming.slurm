@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=trim
 #SBATCH --output=log/02_trimming-%A-%a.out
-#SBATCH --time=00:40:00
+#SBATCH --time=02:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
-#SBATCH --mem=6G
+#SBATCH --mem=16G
 #SBATCH --array=0-47
 #SBATCH --partition=normal
 

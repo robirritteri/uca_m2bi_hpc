@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=hisat2
 #SBATCH --output=log/04_hisat-%A-%a.out
-#SBATCH --time=01:00:00
+#SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -32,12 +32,12 @@ TRIM_DIR="$HOME/results/RNAseq/raw/trim"
 
 echo "[INFO] Listing trimmed FASTQ files in: $TRIM_DIR" >&2
 # Forward reads
-forward_reads=($(ls "$TRIM_DIR"/*/*1_trim_paired.fastq.gz))
+forward_reads=($(ls "$TRIM_DIR"/*1_trim_paired.fastq.gz))
 echo "[INFO] Forward reads detected:" >&2
 printf '  %s\n' "${forward_reads[@]}" >&2
 
 # Reverse reads
-reverse_reads=($(ls "$TRIM_DIR"/*/*2_trim_paired.fastq.gz))
+reverse_reads=($(ls "$TRIM_DIR"/*2_trim_paired.fastq.gz))
 echo "[INFO] Reverse reads detected:" >&2
 printf '  %s\n' "${reverse_reads[@]}" >&2
 

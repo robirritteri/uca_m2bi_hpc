@@ -27,7 +27,7 @@ conda activate rnaseq
 GTF="/home/users/shared/databanks/Mus_musculus_GRCm39/flat/genomic.gtf"
 
 # Input directory containing deduplicated BAM files
-PICARD_DIR="$HOME/results/RNAseq/picard"
+PICARD_DIR="$HOME/results/RNAseq/raw/picard"
 
 echo "[INFO] Listing deduplicated BAM files in: $PICARD_DIR" >&2
 bam_files=($(ls "$PICARD_DIR"/*/*_RO_MP.bam))
@@ -43,7 +43,7 @@ SCRATCHDIR="/storage/scratch/$USER/${filename}/count"
 mkdir -p -m 700 "$SCRATCHDIR"
 
 # Output directory for final results
-OUTPUT="$HOME/results/RNAseq/samtools/$filename"
+OUTPUT="$HOME/results/RNAseq/raw/counts/$filename"
 mkdir -p "$OUTPUT"
 
 # Change to scratch directory to ensure all operations happen there

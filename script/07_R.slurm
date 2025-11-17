@@ -15,6 +15,8 @@
 
 # Load conda environment
 module purge
+module load gcc/8.1.0 R/4.0.2
+
 source /home/users/shared/conda_envs/miniconda3/bin/activate
 conda activate rnaseq
 
@@ -22,7 +24,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Input directory containing deduplicated BAM files
-COUNTS_DIR="$HOME/results/RNAseq/raw/counts"
+COUNTS_DIR="$HOME/results/RNAseq/counts"
 
 # Scratch directory for temporary computation
 SCRATCHDIR="/storage/scratch/$USER/R_analyse"
