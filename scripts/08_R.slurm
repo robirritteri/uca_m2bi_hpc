@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=Analyse
-#SBATCH --output=log/slurmjob-%A-%a
+#SBATCH --output=log/07_R-%A-%a.out
 #SBATCH --time=00:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -13,13 +13,32 @@
 # R Analysis – Statistical analysis and visualization
 ###############################################
 
+# Load conda environment
+module purge
+source /home/users/shared/conda_envs/miniconda3/bin/activate
+conda activate rnaseq
+
 set -euo pipefail
 IFS=$'\n\t'
+
+# Input directory containing deduplicated BAM files
+COUNTS_DIR="$HOME/results/RNAseq/raw/counts"
+
+# Scratch directory for temporary computation
+SCRATCHDIR="/storage/scratch/$USER/R_analyse"
+mkdir -p -m 700 "$SCRATCHDIR"
+
+# Output directory for final results
+OUTPUT="$HOME/results/RNAseq/R"
+mkdir -p "$OUTPUT"
+
+# Change to scratch directory to ensure all operations happen there
+cd "$SCRATCHDIR"
 
 echo "===== Starting R merge Data ====="
 
 echo "[INFO] Running R analysis script: all_counts.R" >&2
-Rscript all_counts.R
+Rscript all_counts.R "$COUNTS_DIR" >&2
 
 echo "===== Starting R analysis job ====="
 
@@ -40,7 +59,17 @@ if [ ! -s "$COUNTS_FILE" ]; then
 	exit 1
 fi
 
-Rscript Analyse.R
+Rscript Analyse.R "$SCRATCHDIR" >&2
+
+###########################################
+# Move results to final output
+###########################################
+mv -r "$SCRATCHDIR"/* "$OUTPUT"/
+
+# Clean scratch directory
+rm -rf "$SCRATCHDIR"
+
+conda deactivate
 
 echo "===== R analysis job completed successfully ====="
 echo "Stopped at: $(date)" >&2
