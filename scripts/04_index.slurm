@@ -25,7 +25,7 @@ date
 # ==========================
 # Path
 # ==========================
-INDEX_DIR="/home/users/student14/uca_m2bi_hpc/index_star"
+INDEX_DIR="$HOME/index_star"
 
 # create the index folder if it does not exist
 if test ! -d "$INDEX_DIR"; then
