@@ -16,6 +16,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+module load conda
+conda activate rnaseq
+
 echo "===== Starting R merge Data ====="
 
 echo "[INFO] Running R analysis script: all_counts.R" >&2
