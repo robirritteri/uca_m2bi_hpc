@@ -5,6 +5,19 @@
 # Load required libraries
 library(dplyr)
 
+# list libraries
+cran_pkgs <- c("dplyr")
+
+# Installe packages CRAN
+install_if_missing <- function(pkgs) {
+  to_install <- pkgs[!pkgs %in% installed.packages()[, "Package"]]
+  if (length(to_install) > 0) {
+    install.packages(to_install)
+  } 
+
+install_if_missing(cran_pkgs)
+
+
 PATH <- commandArgs(trailingOnly = TRUE)
 
 # Set working directory
