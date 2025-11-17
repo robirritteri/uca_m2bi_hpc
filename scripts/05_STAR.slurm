@@ -12,6 +12,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+module load conda
+conda activate rnaseq
+
 ###############################################
 # STAR – Alignment
 ###############################################
