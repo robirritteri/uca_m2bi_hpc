@@ -13,6 +13,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+module load conda
+conda activate rnaseq
+
 echo "===== Starting FastQC job (RAW) ====="
 
 # ==========================
