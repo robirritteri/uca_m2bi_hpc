@@ -15,7 +15,7 @@ setwd(PATH)
 ###############################################
 
 # Directory containing featureCounts files
-fc_dir <- "/home/users/student05/results/RNAseq/counts"
+fc_dir <- "$HOME/results/RNAseq/counts"
 
 # List all featureCounts files
 files <- list.files(fc_dir, pattern = "featureCounts.txt$", full.names = TRUE)
