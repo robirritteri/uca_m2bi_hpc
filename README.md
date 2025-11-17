@@ -124,6 +124,7 @@ Operations for paired-end BAMs:
 ```text
 - fixmate
 - sort
+- filter quality
 - remove duplicates
 - write metrics
 ```
