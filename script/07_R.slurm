@@ -48,8 +48,8 @@ echo "[INFO] Running R analysis script: Analyse.R" >&2
 
 # Before launching Analyse.R, verify that the merged counts file exists
 # and appears to have been produced (or at least updated) after running all_counts.R.
-COUNTS_FILE="$PWD/all_featureCounts_counts.txt"
-ALLCOUNTS_SCRIPT="$PWD/all_counts.R"
+COUNTS_FILE="$SCRATCHDIR/all_featureCounts_counts.txt"
+ALLCOUNTS_SCRIPT="$SCRATCHDIR/all_counts.R"
 
 if [ ! -f "$COUNTS_FILE" ]; then
 	echo "[ERROR] Counts file not found: $COUNTS_FILE" >&2
@@ -60,6 +60,7 @@ if [ ! -s "$COUNTS_FILE" ]; then
 	echo "[ERROR] Counts file is empty: $COUNTS_FILE" >&2
 	exit 1
 fi
+
 
 Rscript Analyse.R "$SCRATCHDIR" >&2
 
