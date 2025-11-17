@@ -22,7 +22,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Input directory containing deduplicated BAM files
-COUNTS_DIR="$HOME/results/RNAseq/counts"
+COUNTS_DIR="$HOME/results/RNAseq/raw/counts"
 
 # Scratch directory for temporary computation
 SCRATCHDIR="/storage/scratch/$USER/R_analyse"
