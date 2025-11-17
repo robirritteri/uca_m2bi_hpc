@@ -1,0 +1,15 @@
+name: rnaseq
+channels:
+  - bioconda
+  - R
+  - conda-forge
+dependencies:
+  - r-base=4.3
+  - bioconductor-deseq2
+  - subread 
+  - cutadapt
+  - fastqc
+  - multiqc
+  - star
+  - samtools
+  - picard
