@@ -17,26 +17,26 @@ sbatch 01_fastqc.slurm
 
 # Step 2 — Trimming (cutadapt)
 echo "[2/7] Trimming reads..."
-sbatch 02_trimming.slurm
+sbatch 02_cutadapt.slurm
 
 # Step 3 — FastQC après trimming
 echo "[3/7] Running FastQC on trimmed reads..."
-sbatch 03_fastqc_posttrimming.slurm
+sbatch 03_fastqc.slurm
 
 # Step 4 — Alignement (STAR)
 echo "[4/7] Aligning reads to reference genome..."
-sbatch 04_alignement.slurm
+sbatch 04_STAR.slurm
 
 # Step 5 — Traitement BAM (Picard + samtools)
 echo "[5/7] Cleaning BAM files (Picard/samtools)..."
-sbatch 05_traitement_bam.slurm
+sbatch 05_cleaning.slurm
 
 # Step 6 — Comptage (featureCounts)
 echo "[6/7] Counting reads (featureCounts)..."
-sbatch 06_comptage_featurecounts.slurm
+sbatch 06_counts.slurm
 
 # Step 7 — Normalisation & DE (DESeq2)
 echo "[7/7] Running normalization and DESeq2 analysis..."
-sbatch 07_normalisation_deseq2.slurm
+sbatch 07_R.slurm
 
 echo "===== Pipeline submitted successfully ====="
