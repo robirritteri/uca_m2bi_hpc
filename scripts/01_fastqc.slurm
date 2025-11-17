@@ -21,7 +21,7 @@ echo "===== Starting FastQC job (RAW) ====="
 # ==========================
 # Path
 # ==========================
-RAW_DIR="/home/users/shared/data/stategra/RNAseq"
+RAW_DIR="/home/users/shared/data/stategra/RNAseq/raw"
 
 # List raw FASTQ files
 fastq_files=($(ls "$RAW_DIR"/*.fastq.gz 2>/dev/null))
