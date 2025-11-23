@@ -1,22 +1,20 @@
 name: rnaseq
 channels:
-  - bioconda
-  - R
   - conda-forge
+  - bioconda
 dependencies:
-  - bioconductor-deseq2
-  - subread 
-  - cutadapt
   - fastqc
   - multiqc
+  - cutadapt
   - star
   - samtools
   - picard
-  - r-base
+  - subread
+  - r-base=4.3
   - r-dplyr
-  - r-readr
   - r-ggplot2
   - r-patchwork
   - bioconductor-deseq2
+  - bioconductor-annotationdbi
+  - bioconductor-org.mm.eg.db
   - r-pheatmap
-  - bioconductor-biomart
