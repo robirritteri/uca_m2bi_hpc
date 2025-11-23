@@ -38,7 +38,7 @@ fi
 
 filename=$(basename "${fastq_files[$SLURM_ARRAY_TASK_ID]}" .fastq.gz)
 
-# Scratch + final output (modified)
+# Scratch + final output
 SCRATCHDIR="/storage/scratch/$USER/${filename}/fastqc-init"
 OUTPUT_BASE="$HOME/results/RNAseq/raw/qc-init"
 OUTPUT="$OUTPUT_BASE/$filename"
