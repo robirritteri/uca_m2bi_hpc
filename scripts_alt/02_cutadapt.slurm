@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=4G
-#SBATCH --array=0-999
+#SBATCH --array=0-47
 #SBATCH --partition=normal
 
 ###############################################
@@ -23,10 +23,9 @@ conda activate rnaseq
 # Path
 # ==========================
 RAW_DIR="/home/users/shared/data/stategra/RNAseq/raw"
-TRIM_DIR="/home/users/student14/uca_m2bi_hpc/results/RNAseq/trimmed/paired"
-QC_TRIM_DIR="$HOME/results/RNAseq/trimmed/qc-post"   # MultiQC post-trim (optional here)
+TRIM_DIR="$HOME/uca_m2bi_hpc/results/RNAseq/trimmed/paired"
 
-mkdir -p "$TRIM_DIR" "$QC_TRIM_DIR"
+mkdir -p "$TRIM_DIR" 
 
 # Parameters
 QUAL=20
@@ -71,10 +70,5 @@ cutadapt \
   -o "$out_fq1" \
   -p "$out_fq2" \
   "$fq1" "$fq2"
-
-# MultiQC only once (optional here, otherwise leave it for post-trim)
-if [ "${SLURM_ARRAY_TASK_ID}" -eq 0 ]; then
-  multiqc -o "$QC_TRIM_DIR" "$TRIM_DIR"
-fi
 
 echo "=== Done: $base ==="
